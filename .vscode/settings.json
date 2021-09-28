@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.hcl": "terraform",
+        "comic-ranz.h": "c"
+    }
+}
