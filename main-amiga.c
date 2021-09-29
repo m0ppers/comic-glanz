@@ -23,32 +23,51 @@ volatile UBYTE *ciaa_pra = (volatile UBYTE *)0xbfe001;
 volatile UBYTE *custom_vhposr = (volatile UBYTE *)0xdff006;
 
 #define TASK_PRIORITY 20
+
+// clang-format off
+#define DIWSTRT 0x08e
+#define DIWSTOP 0x090
+#define DDFSTRT 0x092
+#define DDFSTOP 0x094
+#define BPL1PTH 0x0e0
+#define BPL1PTL 0x0e2
 #define BPLCON0 0x100
+#define BPL1MOD 0x108
+#define BPL2MOD 0x10a
 #define COLOR00 0x180
-#define FMODE 0x1fc
+#define FMODE   0x1fc
+// clang-format on
+
 #define PRA_FIR0_BIT (1 << 6)
 #define BPLCON0_COMPOSITE_COLOR (1 << 9)
 
 static uint16_t palette[32];
 static uint8_t image[81920];
 
+#define COPLIST_IDX_BPL_SETUP (17)
+
 // clang-format off
-// static UWORD __chip coplist[128] = {
-//   FMODE, 0x0, // AGA => OCS compat
-//   BPLCON0, 0x200,
-//   COLOR00, 0xf00,
-//   0xffff, 0xfffe
-// };
+static UWORD __chip coplist[] = {
+  FMODE, 0x0, // AGA => OCS compat
+  BPLCON0, 0x1200,
+  DIWSTRT, 0x2c81,
+  DIWSTOP, 0x2cc1,
+	DDFSTRT, 0x38,
+	DDFSTOP, 0xd0,
+  BPL1MOD, 0x0,
+  BPL2MOD, 0x0,
+  BPL1PTH, 0x0,
+  BPL1PTL, 0x0,
+  // palette
+  0x180, 0xa0f,
+  0x182, 0x000,
+  0xffff, 0xfffe
+};
 // clang-format on
 
 static uint8_t __chip buffer[81920];
 
 #define PRA_FIR0_BIT (1 << 6)
-#define COLOR_WHITE (0xfff)
-#define COLOR_RED (0xf00)
-#define COLOR_WBENCH_BG (0x05a)
-#define TOP_POS (0x40)
-#define BOTTOM_POS (0xf0)
 
 void init_display(void) {
   LoadView(NULL); // clear display, reset hardware registers
@@ -93,14 +112,12 @@ int main(int argc, char **argv) {
   uint16_t intenar = custom.intenar;
   // disable all interrupts
   custom.intena = 0x7fff;
-  custom.fmode = 0x0;
-  custom.bplcon0 = 0x1200;
-  custom.bplpt[0] = &buffer[0];
 
-  for (int i = 0; i < 32; i++) {
-    custom.color[i] = palette[i];
-  }
-  // custom.cop1lc = (ULONG) coplist;
+  ULONG addr = (ULONG)(&buffer);
+  coplist[COPLIST_IDX_BPL_SETUP] = (addr >> 16) & 0xffff;
+  coplist[COPLIST_IDX_BPL_SETUP + 2] = (addr)&0xffff;
+
+  custom.cop1lc = (ULONG)coplist;
   while ((*ciaa_pra & PRA_FIR0_BIT) != 0) {
   }
   reset_display();
