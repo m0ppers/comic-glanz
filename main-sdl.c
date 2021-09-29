@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "palette_sdl.h"
+
 int main(int argc, char **argv) {
   const int WIDTH = 1280;
   const int HEIGHT = 1024;
@@ -38,9 +40,6 @@ int main(int argc, char **argv) {
   }
   SDL_Surface *surface =
       SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 256, 8, 0, 0, 0, 0);
-
-  uint16_t palette[32];
-  create_palette(&palette[0]);
 
   SDL_Color colors[64];
   uint8_t c;

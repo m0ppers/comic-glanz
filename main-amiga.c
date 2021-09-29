@@ -58,9 +58,7 @@ static UWORD __chip coplist[] = {
   BPL2MOD, 0x0,
   BPL1PTH, 0x0,
   BPL1PTL, 0x0,
-  // palette
-  0x180, 0xa0f,
-  0x182, 0x000,
+  #include "palette_amiga.h"
   0xffff, 0xfffe
 };
 // clang-format on
