@@ -97,12 +97,20 @@ int main(int argc, char **argv) {
   // if (!MathBase) {
   //   return 1;
   // }
-  for (int i = 0; i < 81920; i++) {
-    buffer[i] = 0xff;
-  }
 
   create_palette(&palette[0]);
   create_ranz(&image[0]);
+
+  for (int i = 0; i < 81920; i++) {
+    buffer[i] = 0;
+  }
+
+  for (int i = 0; i < 81920; i++) {
+    uint8_t b = 1 << (7 - i % 8);
+    if (image[i] & 0x1) {
+      buffer[i / 8] |= b;
+    }
+  }
 
   Forbid();
   SetTaskPri(FindTask(NULL), TASK_PRIORITY);
