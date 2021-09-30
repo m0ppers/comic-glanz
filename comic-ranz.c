@@ -1,7 +1,6 @@
 #include "comic-ranz.h"
 
 #ifdef AMIGA
-
 #include <clib/mathffp_protos.h>
 
 #define AAABS SPAbs
@@ -116,41 +115,6 @@ void draw_line(uint8_t *image, float x0, float y0, float x1, float y1) {
       intery = intery + gradient;
     }
   }
-}
-
-void create_palette(uint16_t *palette) {
-  palette[0] = 0xfff;
-  palette[1] = 0x111; // will become black after EHB shift
-  palette[2] = 0xc8a;
-  palette[3] = 0x97b;
-  palette[4] = 0x38a;
-  palette[5] = 0xab1;
-  palette[6] = 0x1b8;
-  palette[7] = 0xc1a;
-  palette[8] = 0x97b;
-  palette[9] = 0x38a;
-  palette[10] = 0xd91;
-  palette[11] = 0xab1;
-  palette[12] = 0xc1a;
-  palette[13] = 0x97b;
-  palette[14] = 0x38a;
-  palette[15] = 0xab1;
-  palette[16] = 0xaf8;
-  palette[17] = 0xc1a;
-  palette[18] = 0x97b;
-  palette[19] = 0x38a;
-  palette[20] = 0xab1;
-  palette[21] = 0xfb1;
-  palette[22] = 0xc1a;
-  palette[23] = 0x97b;
-  palette[24] = 0x38a;
-  palette[25] = 0xab1;
-  palette[26] = 0xeb1;
-  palette[27] = 0xc1a;
-  palette[28] = 0x97b;
-  palette[29] = 0x38a;
-  palette[30] = 0xab1;
-  palette[31] = 0xf00;
 }
 
 void create_ranz(uint8_t *image) {
