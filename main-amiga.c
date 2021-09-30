@@ -136,6 +136,7 @@ int main(int argc, char **argv) {
       plane_offset += plane_size;
     }
   }
+  // buffer[5 * plane_size] = 0xff;
   ULONG addr = (ULONG)(&buffer);
   int offset = 0;
   for (int i = 0; i < NUM_BITPLANES; i++) {
@@ -150,10 +151,15 @@ int main(int argc, char **argv) {
   SetTaskPri(FindTask(NULL), TASK_PRIORITY);
   init_display();
 
-  // save old interrupt state
+  // save old state
   uint16_t intenar = custom.intenar;
+  uint16_t dmaconr = custom.dmaconr;
   // disable all interrupts
   custom.intena = 0x7fff;
+  // and all dma
+  custom.dmacon = 0x7fff;
+  // reenable bitplane and copper DMA (all we need)
+  custom.dmacon = 0x8780;
 
   custom.cop1lc = (ULONG)coplist;
   while ((*ciaa_pra & PRA_FIR0_BIT) != 0) {
@@ -161,6 +167,7 @@ int main(int argc, char **argv) {
   reset_display();
   // reset old state
   custom.intena = intenar | 0xc000;
+  custom.dmacon = dmaconr | 0x8000;
   Permit();
 
   CloseLibrary((struct Library *)IntuitionBase);
