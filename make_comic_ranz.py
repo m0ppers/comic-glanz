@@ -31,6 +31,7 @@ def consume_comma(d):
 
 def consume_type(d, pos):
     type = d[0]
+    print("Processing type: {}".format(type))
     if type == "m":
         d = consume_whitespace(d[1:])
         d, x = consume_number(d)
@@ -45,7 +46,6 @@ def consume_type(d, pos):
             try:
                 d = consume_whitespace(d[1:])
                 d, cx = consume_number(d)
-                print(cx)
                 d = consume_whitespace(d)
                 d = consume_comma(d)
                 d, cy = consume_number(d)
@@ -56,13 +56,29 @@ def consume_type(d, pos):
                 d, y = consume_number(d)
                 qs.append({"cx": cx, "cy": cy, "x": x, "y": y})
             except:
-                print("GEIL")
                 break
-        print("HMM", json.dumps(qs, indent=2))
         return d, {"type": "q", "qs": qs}
     elif type == "z":
         d = d[1:]
         return d, {"type": "z"}
+    elif type == "l":
+        d = d[1:]
+        d = consume_whitespace(d[1:])
+        d, x = consume_number(d)
+        d = consume_whitespace(d)
+        d = consume_comma(d)
+        d, y = consume_number(d)
+        return d, {"type": "l", "x": x, "y": y}
+    elif type == "v":
+        d = d[1:]
+        d = consume_whitespace(d[1:])
+        d, y = consume_number(d)
+        return d, {"type": "l", "x": 0, "y": y}
+    elif type == "h":
+        d = d[1:]
+        d = consume_whitespace(d[1:])
+        d, x = consume_number(d)
+        return d, {"type": "l", "x": x, "y": 0}
     else:
         raise Exception("Unknown type {} {}".format(type, d))
 
@@ -79,13 +95,23 @@ def parse_path(d):
 
 
 def write_path(segments):
-    pos = start = {"x": 0, "y": 0}
+    pos = {"x": 0, "y": 0}
+    start = {"x": 0, "y": 0}
+    first_segment = True
     for segment in segments:
         if segment["type"] == "m":
-            pos["x"] = segment["x"]
-            pos["y"] = segment["y"]
-            array('B', [ord("m")]).tofile(ranz)
-            array('f', [pos["x"], pos["y"]]).tofile(ranz)
+
+            if first_segment:
+                instruction = "M"
+                pos["x"] = start["x"] = segment["x"]
+                pos["y"] = start["y"] = segment["y"]
+            else:
+                instruction = "m"
+                print(pos, segment)
+                pos["x"] = start["x"] = segment["x"] + pos["x"]
+                pos["y"] = start["y"] = segment["y"] + pos["y"]
+            array('B', [ord(instruction)]).tofile(ranz)
+            array('f', [segment["x"], segment["y"]]).tofile(ranz)
         elif segment["type"] == "q":
             array('B', [ord("q")]).tofile(ranz)
             array('B', [len(segment["qs"])]).tofile(ranz)
@@ -95,12 +121,19 @@ def write_path(segments):
                 pos["x"] = q["x"]
                 pos["y"] = q["y"]
         elif segment["type"] == "z":
-            array('B', [ord("l")]).tofile(ranz)
+            array('B', [ord("L")]).tofile(ranz)
             array('f', [start["x"], start["y"]]).tofile(ranz)
-            break
+        elif segment["type"] == "l":
+            array('B', [ord("l")]).tofile(ranz)
+            array('f', [segment["x"], segment["y"]]).tofile(ranz)
+        first_segment = False
 
 
+num = 0
 for path in doc.findall(".//svg:path", ns):
     segments = parse_path(path.attrib["d"])
+    # last closing statement is useless for O, R and A are useless
+    if num == 1 or num == 5 or num == 6:
+        segments.pop()
     write_path(segments)
-    break
+    num += 1

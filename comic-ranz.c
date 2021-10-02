@@ -119,12 +119,25 @@ void create_ranz(uint8_t *image) {
   float y = 0.f;
   while (pos != (start + ranz_bin_len)) {
     unsigned char instruction = *pos;
-    if (instruction == 'm') {
+    printf("instruction: %c\n", instruction);
+
+    if (instruction == 'M') {
       pos++;
       x = *(float *)pos;
       pos += 4;
       y = *(float *)pos;
       pos += 4;
+      printf("MMMM %f,%f\n", x, y);
+
+      // plot(image, (int16_t)x, (int16_t)y, 0);
+    } else if (instruction == 'm') {
+      pos++;
+      x = *(float *)pos + x;
+      pos += 4;
+      y = *(float *)pos + y;
+      pos += 4;
+      printf("MMMM %f,%f\n", x, y);
+
       // plot(image, (int16_t)x, (int16_t)y, 0);
     } else if (instruction == 'q') {
       pos++;
@@ -151,8 +164,18 @@ void create_ranz(uint8_t *image) {
         x = dxf;
         y = dyf;
       }
-      return;
     } else if (instruction == 'l') {
+      pos++;
+      float dxf = *(float *)pos + x;
+      int16_t dx = (int16_t)roundf(dxf);
+      pos += 4;
+      float dyf = *(float *)pos + y;
+      int16_t dy = (int16_t)roundf(dyf);
+      pos += 4;
+      draw_line(image, (int16_t)roundf(x), (int16_t)roundf(y), dx, dy);
+      x = dxf;
+      y = dyf;
+    } else if (instruction == 'L') {
       pos++;
       float dxf = *(float *)pos;
       int16_t dx = (int16_t)roundf(dxf);
@@ -164,7 +187,7 @@ void create_ranz(uint8_t *image) {
       x = dxf;
       y = dyf;
     } else {
-      // printf("Kaputt! %c %d\n", instruction, pos - start);
+      printf("Kaputt! %c %d\n", instruction, pos - start);
       return;
     }
   }
