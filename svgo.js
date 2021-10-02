@@ -12,6 +12,7 @@ module.exports = {
         floatPrecision: 0,
         removeUseless: true,
         forceAbsolutePath: true,
+        curveSmoothShorthands: false,
       },
     },
   ],

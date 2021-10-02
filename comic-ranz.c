@@ -123,7 +123,10 @@ void create_ranz(uint8_t *image) {
   int16_t y = 0;
   while (pos != (start + ranz_bin_len)) {
     unsigned char instruction = *pos;
-    // printf("GEIL %c\n", instruction);
+    printf("GEIL %c\n", instruction);
+    // if (pos > start + 40) {
+    //   return;
+    // }
     if (instruction == 'M') {
       pos++;
       int16_t a = (*(int16_t *)pos >> 8);
@@ -147,7 +150,7 @@ void create_ranz(uint8_t *image) {
         pos += 2;
         int16_t dy = FETCH_I16(pos);
         pos += 2;
-        // printf("%d %d Q %d %d %d %d\n", x, y, cx, cy, dx, dy);
+        printf("%d %d Q %d %d %d %d\n", x, y, cx, cy, dx, dy);
         // draw_line(image, (int16_t)roundf(x), (int16_t)roundf(y), dx, dy);
         draw_quadratic_bezier(image, x, y, cx, cy, dx, dy);
         x = dx;

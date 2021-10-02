@@ -148,10 +148,6 @@ def write_path(segments):
                 array('B', amigaaaaa([y])).tofile(ranz)
 
 
-def remove_shorthandcurves(d):
-    return re.sub("(\d+) (\d+) (\d+) (\d+)T(\d+) (\d+)", r'\1 \2 \3 \4 Q\1 \2 \5 \6', d)
-
-
 def remove_implicit_line_to(d):
     return re.sub("M(\d+) (\d+) (\d+)", r'M\1 \2 L\3', d)
 
@@ -159,7 +155,6 @@ def remove_implicit_line_to(d):
 num = 0
 for path in doc.findall(".//svg:path", ns):
     d = path.attrib["d"]
-    d = remove_shorthandcurves(d)
     d = remove_implicit_line_to(d)
     segments = parse_path(d)
     write_path(segments)
