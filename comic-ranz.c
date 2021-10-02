@@ -2,7 +2,6 @@
 
 #include "ranz.h"
 
-#include <stdlib.h>
 #ifdef AMIGA
 #define FETCH_I16(pos) *(int16_t *)pos
 #else
@@ -23,8 +22,16 @@ void plot(uint8_t *image, int16_t x, int16_t y, uint8_t v) {
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm#Algorithm_for_integer_arithmetic
 void draw_line(uint8_t *image, int16_t x0, int16_t y0, int16_t x1, int16_t y1) {
   // printf("DRAWING LINE %d,%d -> %d,%d\n", x0, y0, x1, y1);
-  int16_t dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-  int16_t dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+  int16_t dx = (x1 - x0);
+  if (dx < 0) {
+    dx = -dx;
+  }
+  int16_t dy = y1 - y0;
+  if (dy > 0) {
+    dy = -dy;
+  }
+  int16_t sx = x0 < x1 ? 1 : -1;
+  int16_t sy = y0 < y1 ? 1 : -1;
   int16_t err = dx + dy, e2; /* error value e_xy */
 
   for (;;) { /* loop */
@@ -47,8 +54,8 @@ void draw_line(uint8_t *image, int16_t x0, int16_t y0, int16_t x1, int16_t y1) {
 void draw_quadratic_bezier(uint8_t *image, int16_t x0, int16_t y0, int16_t x1,
                            int16_t y1, int16_t x2, int16_t y2) {
   int16_t sx = x2 - x1, sy = y2 - y1;
-  long xx = x0 - x1, yy = y0 - y1, xy;        /* relative values for checks */
-  float dx, dy, err, cur = xx * sy - yy * sx; /* curvature */
+  long xx = x0 - x1, yy = y0 - y1, xy;          /* relative values for checks */
+  int32_t dx, dy, err, cur = xx * sy - yy * sx; /* curvature */
 
   // assert(xx * sx <= 0 && yy * sy <= 0); /* sign of gradient must not change
   // */
@@ -75,8 +82,8 @@ void draw_quadratic_bezier(uint8_t *image, int16_t x0, int16_t y0, int16_t x1,
       xy = -xy;
       cur = -cur;
     }
-    dx = 4.0 * sy * cur * (x1 - x0) + xx - xy; /* differences 1st degree */
-    dy = 4.0 * sx * cur * (y0 - y1) + yy - xy;
+    dx = 4 * sy * cur * (x1 - x0) + xx - xy; /* differences 1st degree */
+    dy = 4 * sx * cur * (y0 - y1) + yy - xy;
     xx += xx;
     yy += yy;
     err = dx + dy + xy; /* error 1st step */
@@ -108,6 +115,7 @@ void create_ranz(uint8_t *image) {
       image[index++] = y / 8;
     }
   }
+
   // draw_line(image, 50, 50, 100, 50);
   // draw_line(image, 100, 60, 50, 60);
   // draw_line(image, 50, 70, 100, 75);
@@ -123,7 +131,7 @@ void create_ranz(uint8_t *image) {
   int16_t y = 0;
   while (pos != (start + ranz_bin_len)) {
     unsigned char instruction = *pos;
-    printf("GEIL %c\n", instruction);
+    // printf("GEIL %c\n", instruction);
     // if (pos > start + 40) {
     //   return;
     // }
@@ -137,6 +145,7 @@ void create_ranz(uint8_t *image) {
       pos += 2;
       y = FETCH_I16(pos);
       pos += 2;
+
     } else if (instruction == 'Q') {
       pos++;
       uint8_t numqs = *(uint8_t *)pos;
@@ -150,7 +159,7 @@ void create_ranz(uint8_t *image) {
         pos += 2;
         int16_t dy = FETCH_I16(pos);
         pos += 2;
-        printf("%d %d Q %d %d %d %d\n", x, y, cx, cy, dx, dy);
+        // printf("%d %d Q %d %d %d %d\n", x, y, cx, cy, dx, dy);
         // draw_line(image, (int16_t)roundf(x), (int16_t)roundf(y), dx, dy);
         draw_quadratic_bezier(image, x, y, cx, cy, dx, dy);
         x = dx;
