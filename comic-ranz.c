@@ -20,7 +20,8 @@ void plot(uint8_t *image, int16_t x, int16_t y, uint8_t v) {
 }
 
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm#Algorithm_for_integer_arithmetic
-void draw_line(uint8_t *image, int16_t x0, int16_t y0, int16_t x1, int16_t y1) {
+void draw_line(uint8_t *image, int16_t x0, int16_t y0, int16_t x1, int16_t y1,
+               uint8_t color, int do_mod) {
   // printf("DRAWING LINE %d,%d -> %d,%d\n", x0, y0, x1, y1);
   int16_t dx = (x1 - x0);
   if (dx < 0) {
@@ -35,7 +36,11 @@ void draw_line(uint8_t *image, int16_t x0, int16_t y0, int16_t x1, int16_t y1) {
   int16_t err = dx + dy, e2; /* error value e_xy */
 
   for (;;) { /* loop */
-    plot(image, x0, y0, 32);
+    if (do_mod) {
+      plot(image, x0 % 320, y0, color);
+    } else {
+      plot(image, x0, y0, color);
+    }
     if (x0 == x1 && y0 == y1)
       break;
     e2 = 2 * err;
@@ -104,18 +109,25 @@ void draw_quadratic_bezier(uint8_t *image, int16_t x0, int16_t y0, int16_t x1,
       }                /* y step */
     } while (dy < dx); /* gradient negates -> algorithm fails */
   }
-  draw_line(image, x0, y0, x2, y2); /* plot remaining part to end */
+  draw_line(image, x0, y0, x2, y2, 32, 0); /* plot remaining part to end */
 }
 
 void create_ranz(uint8_t *image) {
   int index = 0;
   int16_t x = 0;
   int16_t y = 0;
-  for (y = 0; y < 256; ++y) {
-    for (x = 0; x < 320; ++x) {
-      // image[index++] = 0;
-      image[index++] = y / 8;
+
+  for (index = 2; index < 32; index++) {
+    int16_t add;
+    if (index > 5 && index < 26) {
+      add = 11;
+    } else {
+      add = 10;
     }
+    for (int i = 0; i < add; i++) {
+      draw_line(image, x + i, 255, x + i + 20, 0, index, 1);
+    }
+    x += add;
   }
 
   // draw_line(image, 50, 50, 100, 50);
@@ -176,7 +188,7 @@ void create_ranz(uint8_t *image) {
         int16_t dy = FETCH_I16(pos);
         pos += 2;
         // printf("%d %d L %d %d\n", x, y, dx, dy);
-        draw_line(image, x, y, dx, dy);
+        draw_line(image, x, y, dx, dy, 32, 0);
         x = dx;
         y = dy;
       }
@@ -187,7 +199,7 @@ void create_ranz(uint8_t *image) {
       for (uint8_t i = 0; i < numhs; i++) {
         int16_t dx = FETCH_I16(pos);
         pos += 2;
-        draw_line(image, x, y, dx, y);
+        draw_line(image, x, y, dx, y, 32, 0);
         x = dx;
       }
     } else if (instruction == 'V') {
@@ -198,7 +210,7 @@ void create_ranz(uint8_t *image) {
         int16_t dy = FETCH_I16(pos);
         // printf("V %d %d %d\n", x, y, dy);
         pos += 2;
-        draw_line(image, x, y, x, dy);
+        draw_line(image, x, y, x, dy, 32, 0);
         y = dy;
       }
     } else {
