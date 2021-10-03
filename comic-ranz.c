@@ -35,7 +35,7 @@ void draw_line(uint8_t *image, int16_t x0, int16_t y0, int16_t x1, int16_t y1) {
   int16_t err = dx + dy, e2; /* error value e_xy */
 
   for (;;) { /* loop */
-    plot(image, x0, y0, 0);
+    plot(image, x0, y0, 32);
     if (x0 == x1 && y0 == y1)
       break;
     e2 = 2 * err;
@@ -88,7 +88,7 @@ void draw_quadratic_bezier(uint8_t *image, int16_t x0, int16_t y0, int16_t x1,
     yy += yy;
     err = dx + dy + xy; /* error 1st step */
     do {
-      plot(image, x0, y0, 0); /* plot curve */
+      plot(image, x0, y0, 32); /* plot curve */
       if (x0 == x2 && y0 == y2)
         return;          /* last pixel -> curve finished */
       y1 = 2 * err < dx; /* save value for test of y step */
@@ -109,8 +109,10 @@ void draw_quadratic_bezier(uint8_t *image, int16_t x0, int16_t y0, int16_t x1,
 
 void create_ranz(uint8_t *image) {
   int index = 0;
-  for (int y = 0; y < 256; ++y) {
-    for (int x = 0; x < 320; ++x) {
+  int16_t x = 0;
+  int16_t y = 0;
+  for (y = 0; y < 256; ++y) {
+    for (x = 0; x < 320; ++x) {
       // image[index++] = 0;
       image[index++] = y / 8;
     }
@@ -127,8 +129,7 @@ void create_ranz(uint8_t *image) {
 
   uint8_t *start = (uint8_t *)&ranz_bin;
   uint8_t *pos = start;
-  int16_t x = 0;
-  int16_t y = 0;
+
   while (pos != (start + ranz_bin_len)) {
     unsigned char instruction = *pos;
     // printf("GEIL %c\n", instruction);
@@ -203,6 +204,23 @@ void create_ranz(uint8_t *image) {
     } else {
       // printf("Kaputt! %c %d\n", instruction, pos - start);
       return;
+    }
+  }
+
+  index = 0;
+  for (y = 0; y < 256; ++y) {
+    int draw_white = 0;
+    for (x = 0; x < 320; ++x) {
+      if (image[index] == 32) {
+        if (draw_white) {
+          draw_white = 0;
+        } else {
+          draw_white = 1;
+        }
+      } else if (draw_white) {
+        image[index] = 1;
+      }
+      index++;
     }
   }
 
