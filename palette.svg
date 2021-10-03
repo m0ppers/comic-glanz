@@ -24,8 +24,8 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.32"
-     inkscape:cx="660.9375"
-     inkscape:cy="431.25"
+     inkscape:cx="454.6875"
+     inkscape:cy="-440.625"
      inkscape:window-width="1916"
      inkscape:window-height="1023"
      inkscape:window-x="0"
@@ -240,6 +240,13 @@
        width="22.458254"
        height="209.16197"
        x="461.71677"
+       y="-232.03445" />
+    <rect
+       style="fill:#ccff88;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect2268-31-0"
+       width="22.458254"
+       height="209.16197"
+       x="484.17502"
        y="-232.03445" />
   </g>
 </svg>
