@@ -12,6 +12,8 @@
 
 #define BLUR_RADIUS 1
 
+static uint8_t temp[81920];
+
 void plot(uint8_t *image, int16_t x, int16_t y) {
   int32_t x32 = (int32_t)x;
   int32_t y32 = (int32_t)y;
@@ -151,11 +153,12 @@ void blur_v(uint8_t *source, uint8_t *dest) {
     }
     index += 2;
   }
-  printf("GEIL %d\n", index);
 }
 
 void blur(uint8_t *image) {
-  uint8_t temp[81920];
+  for (int i = 0; i < 81920; i++) {
+    temp[i] = 0;
+  }
   blur_h(image, &temp[0]);
   blur_v(&temp[0], image);
 }
@@ -163,6 +166,10 @@ void blur(uint8_t *image) {
 void create_ranz(uint8_t *image) {
   int16_t x = 0;
   int16_t y = 0;
+
+  for (int i = 0; i < 81920; i++) {
+    image[i] = 0;
+  }
 
   uint8_t *start = (uint8_t *)&ranz_bin;
   uint8_t *pos = start;
@@ -232,6 +239,7 @@ void create_ranz(uint8_t *image) {
       return;
     }
   }
+
   blur(image);
 
   int index = 0;
