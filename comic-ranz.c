@@ -10,18 +10,17 @@
 #include "stdio.h"
 #endif
 
-void plot(uint8_t *image, int16_t x, int16_t y, uint8_t v) {
+void plot(uint8_t *image, int16_t x, int16_t y) {
   int32_t x32 = (int32_t)x;
   int32_t y32 = (int32_t)y;
 
   int32_t index = y32 * 320 + x32;
 
-  image[index] = v;
+  image[index] = 255;
 }
 
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm#Algorithm_for_integer_arithmetic
-void draw_line(uint8_t *image, int16_t x0, int16_t y0, int16_t x1, int16_t y1,
-               uint8_t color, int do_mod) {
+void draw_line(uint8_t *image, int16_t x0, int16_t y0, int16_t x1, int16_t y1) {
   // printf("DRAWING LINE %d,%d -> %d,%d\n", x0, y0, x1, y1);
   int16_t dx = (x1 - x0);
   if (dx < 0) {
@@ -36,11 +35,7 @@ void draw_line(uint8_t *image, int16_t x0, int16_t y0, int16_t x1, int16_t y1,
   int16_t err = dx + dy, e2; /* error value e_xy */
 
   for (;;) { /* loop */
-    if (do_mod) {
-      plot(image, x0 % 320, y0, color);
-    } else {
-      plot(image, x0, y0, color);
-    }
+    plot(image, x0, y0);
     if (x0 == x1 && y0 == y1)
       break;
     e2 = 2 * err;
@@ -93,7 +88,7 @@ void draw_quadratic_bezier(uint8_t *image, int16_t x0, int16_t y0, int16_t x1,
     yy += yy;
     err = dx + dy + xy; /* error 1st step */
     do {
-      plot(image, x0, y0, 32); /* plot curve */
+      plot(image, x0, y0); /* plot curve */
       if (x0 == x2 && y0 == y2)
         return;          /* last pixel -> curve finished */
       y1 = 2 * err < dx; /* save value for test of y step */
@@ -109,35 +104,12 @@ void draw_quadratic_bezier(uint8_t *image, int16_t x0, int16_t y0, int16_t x1,
       }                /* y step */
     } while (dy < dx); /* gradient negates -> algorithm fails */
   }
-  draw_line(image, x0, y0, x2, y2, 32, 0); /* plot remaining part to end */
+  draw_line(image, x0, y0, x2, y2); /* plot remaining part to end */
 }
 
 void create_ranz(uint8_t *image) {
-  int index = 0;
   int16_t x = 0;
   int16_t y = 0;
-
-  for (index = 2; index < 32; index++) {
-    int16_t add;
-    if (index > 5 && index < 26) {
-      add = 11;
-    } else {
-      add = 10;
-    }
-    for (int i = 0; i < add; i++) {
-      draw_line(image, x + i, 255, x + i + 20, 0, index, 1);
-    }
-    x += add;
-  }
-
-  // draw_line(image, 50, 50, 100, 50);
-  // draw_line(image, 100, 60, 50, 60);
-  // draw_line(image, 50, 70, 100, 75);
-  // draw_line(image, 50, 85, 100, 80);
-  // draw_line(image, 50, 50, 100, 100);
-
-  // draw_quadratic_bezier(image, 50, 50, 0, 70, 80, 80);
-  // return;
 
   uint8_t *start = (uint8_t *)&ranz_bin;
   uint8_t *pos = start;
@@ -178,7 +150,7 @@ void create_ranz(uint8_t *image) {
         int16_t dx = *((int8_t *)pos++) + x;
         int16_t dy = *((int8_t *)pos++) + y;
         // printf("L %d %d %d %d\n", x, y, dx, dy);
-        draw_line(image, x, y, dx, dy, 32, 0);
+        draw_line(image, x, y, dx, dy);
         x = dx;
         y = dy;
       }
@@ -188,7 +160,7 @@ void create_ranz(uint8_t *image) {
       pos++;
       for (uint8_t i = 0; i < numhs; i++) {
         int16_t dx = *((int8_t *)pos++) + x;
-        draw_line(image, x, y, dx, y, 32, 0);
+        draw_line(image, x, y, dx, y);
         // printf("H %d %d %d\n", x, y, dx);
         x = dx;
       }
@@ -199,7 +171,7 @@ void create_ranz(uint8_t *image) {
       for (uint8_t i = 0; i < numvs; i++) {
         int16_t dy = *((int8_t *)pos++) + y;
         // printf("V %d %d %d\n", x, y, dy);
-        draw_line(image, x, y, x, dy, 32, 0);
+        draw_line(image, x, y, x, dy);
         y = dy;
       }
     } else {
@@ -208,22 +180,36 @@ void create_ranz(uint8_t *image) {
     }
   }
 
-  index = 0;
-  for (y = 0; y < 256; ++y) {
-    int draw_white = 0;
-    for (x = 0; x < 320; ++x) {
-      if (image[index] == 32) {
+  int index = 0;
+  for (y = 0; y < 256; y++) {
+    uint8_t palette_index = 2;
+    uint8_t num = 0;
+    uint8_t step = 10;
+    uint8_t draw_white = 0;
+    for (x = 0; x < 320; x++) {
+      if (image[index] == 255) {
         if (draw_white) {
           draw_white = 0;
         } else {
           draw_white = 1;
         }
+        image[index] = 32;
       } else if (draw_white) {
         image[index] = 1;
+      } else {
+        image[index] = palette_index;
+      }
+      num++;
+      if (num == step) {
+        palette_index++;
+        if (palette_index > 5 && palette_index < 26) {
+          step = 11;
+        } else {
+          step = 10;
+        }
+        num = 0;
       }
       index++;
     }
   }
-
-  // draw_quadratic_bezier(image, 52, 57, -4, -6, -4)
 }
