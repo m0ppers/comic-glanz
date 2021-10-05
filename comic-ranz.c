@@ -10,6 +10,8 @@
 #include "stdio.h"
 #endif
 
+#define BLUR_RADIUS 1
+
 void plot(uint8_t *image, int16_t x, int16_t y) {
   int32_t x32 = (int32_t)x;
   int32_t y32 = (int32_t)y;
@@ -107,6 +109,57 @@ void draw_quadratic_bezier(uint8_t *image, int16_t x0, int16_t y0, int16_t x1,
   draw_line(image, x0, y0, x2, y2); /* plot remaining part to end */
 }
 
+uint8_t pixel_at(uint8_t *image, int16_t x, int16_t y) {
+  if (x < 0 || x >= 320) {
+    return 0;
+  }
+  if (y < 0 || y >= 256) {
+    return 0;
+  }
+}
+
+// https://blackpawn.com/texts/blur/default.html
+void blur_h(uint8_t *source, uint8_t *dest) {
+  // ignore edge of image so loop is easier (no content there anyway)
+  int index = 321;
+  for (int y = 1; y < 255; y++) {
+    for (int x = 1; x < 319; x++) {
+      int16_t total = 0;
+      for (int kx = -BLUR_RADIUS; kx <= BLUR_RADIUS; kx++) {
+        total += source[index + kx];
+      }
+      dest[index] = total / (2 + 1);
+      index++;
+    }
+    index += 2;
+  }
+}
+
+void blur_v(uint8_t *source, uint8_t *dest) {
+  int index = 321;
+  for (int y = 1; y < 255; y++) {
+    for (int x = 1; x < 319; x++) {
+      int16_t total = 0;
+      int blur_index = index - 320;
+      for (int ky = -BLUR_RADIUS; ky <= BLUR_RADIUS; ky++) {
+        total += source[blur_index];
+        blur_index += 320;
+      }
+      dest[index] = total / (2 + 1);
+      // dest[index] = source[index];
+      index++;
+    }
+    index += 2;
+  }
+  printf("GEIL %d\n", index);
+}
+
+void blur(uint8_t *image) {
+  uint8_t temp[81920];
+  blur_h(image, &temp[0]);
+  blur_v(&temp[0], image);
+}
+
 void create_ranz(uint8_t *image) {
   int16_t x = 0;
   int16_t y = 0;
@@ -179,6 +232,7 @@ void create_ranz(uint8_t *image) {
       return;
     }
   }
+  blur(image);
 
   int index = 0;
   for (y = 0; y < 256; y++) {
@@ -187,13 +241,22 @@ void create_ranz(uint8_t *image) {
     uint8_t step = 10;
     uint8_t draw_white = 0;
     for (x = 0; x < 320; x++) {
-      if (image[index] == 255) {
+      if (image[index] > 0) {
+        // printf("GEILGEIL %d\n", image[index]);
         if (draw_white) {
           draw_white = 0;
         } else {
           draw_white = 1;
         }
-        image[index] = 32;
+        if (image[index] > 100) {
+          image[index] = 32;
+        } else if (image[index] > 80) {
+          image[index] = 0;
+        } else if (image[index] > 40) {
+          image[index] = palette_index + 32;
+        } else {
+          image[index] = palette_index;
+        }
       } else if (draw_white) {
         image[index] = 1;
       } else {

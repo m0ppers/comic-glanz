@@ -13,7 +13,7 @@ struct GfxBase *GfxBase;
 struct IntuitionBase *IntuitionBase;
 
 // void __nocommandline(){}; /* Disable commandline parsing  */
-// void __initlibraries(){}; /* Disable auto-library-opening */
+void __initlibraries(){}; /* Disable auto-library-opening */
 
 /*
  * declare memory mapped chip areas as volatile to ensure
