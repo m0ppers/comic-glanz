@@ -83,7 +83,9 @@ static UWORD __chip coplist[] = {
 };
 // clang-format on
 
-static uint8_t __chip buffer[81920];
+#define BUFFER_LEN (320 * 256 / 8 * 6)
+
+static uint8_t __chip buffer[BUFFER_LEN];
 
 #define PRA_FIR0_BIT (1 << 6)
 
@@ -117,7 +119,7 @@ int main(int argc, char **argv) {
   // }
 
   create_ranz(&image[0]);
-  for (int i = 0; i < 81920; i++) {
+  for (int i = 0; i < BUFFER_LEN; i++) {
     buffer[i] = 0;
   }
 

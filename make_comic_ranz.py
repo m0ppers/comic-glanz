@@ -23,7 +23,7 @@ def consume_number(d):
     return d[result.span()[1]:], int(result.group(0))
 
 
-def consume_type(d, pos):
+def consume_type(d, context):
     type = d[0]
     print("Processing type: {} {}".format(type, d))
     if type == "M":
@@ -32,8 +32,27 @@ def consume_type(d, pos):
         d, x = consume_number(d)
         d = consume_whitespace(d)
         d, y = consume_number(d)
-        return d, {"type": "M", "x": x, "y": y}
-    elif type == "Q":
+        context["start_x"] = x
+        context["start_y"] = y
+        old_x = context["x"]
+        old_y = context["y"]
+        context["x"] = x
+        context["y"] = y
+        return d, {"type": "m", "x": x - old_x, "y": y - old_y}
+    elif type == "m":
+        d = d[1:]
+        d = consume_whitespace(d)
+        d, x = consume_number(d)
+        d = consume_whitespace(d)
+        d, y = consume_number(d)
+        context["x"] = context["x"] + x
+        context["y"] = context["y"] + y
+        context["start_x"] = context["x"]
+        context["start_y"] = context["y"]
+        print("DER START {} {} {} {}".format(
+            context["start_x"], context["start_y"], x, y))
+        return d, {"type": "m", "x": x, "y": y}
+    elif type == "q":
         qs = []
         d = d[1:]
         while True:
@@ -46,13 +65,38 @@ def consume_type(d, pos):
                 d, x = consume_number(d)
                 d = consume_whitespace(d)
                 d, y = consume_number(d)
+                context["x"] = x + context["x"]
+                context["y"] = y + context["y"]
                 qs.append({"cx": cx, "cy": cy, "x": x, "y": y})
             except:
                 break
-        return d, {"type": "Q", "qs": qs}
+        return d, {"type": "q", "qs": qs}
     elif type == "z":
         d = d[1:]
-        return d, {"type": "z"}
+        old_x = context["x"]
+        old_y = context["y"]
+        context["x"] = context["start_x"]
+        context["y"] = context["start_y"]
+        lx = context["start_x"] - old_x
+        ly = context["start_y"] - old_y
+        if lx == 0 and ly == 0:
+            return d, None
+        return d, {"type": "l", "ls": [{"x": lx, "y": ly}]}
+    elif type == "l":
+        d = d[1:]
+        ls = []
+        while True:
+            try:
+                d = consume_whitespace(d)
+                d, x = consume_number(d)
+                d = consume_whitespace(d)
+                d, y = consume_number(d)
+                context["x"] = x + context["x"]
+                context["y"] = y + context["y"]
+                ls.append({"x": x, "y": y})
+            except:
+                break
+        return d, {"type": "l", "ls": ls}
     elif type == "L":
         d = d[1:]
         ls = []
@@ -62,11 +106,13 @@ def consume_type(d, pos):
                 d, x = consume_number(d)
                 d = consume_whitespace(d)
                 d, y = consume_number(d)
-                ls.append({"x": x, "y": y})
+                context["x"] = x
+                context["y"] = y
+                ls.append({"x": x - context["x"], "y": y - context["y"]})
             except:
                 break
-        return d, {"type": "L", "ls": ls}
-    elif type == "V":
+        return d, {"type": "l", "ls": ls}
+    elif type == "v":
         d = d[1:]
         vs = []
         while True:
@@ -74,10 +120,11 @@ def consume_type(d, pos):
                 d = consume_whitespace(d)
                 d, y = consume_number(d)
                 vs.append(y)
+                context["y"] = y + context["y"]
             except:
                 break
-        return d, {"type": "V", "vs": vs}
-    elif type == "H":
+        return d, {"type": "v", "vs": vs}
+    elif type == "h":
         d = d[1:]
         hs = []
         while True:
@@ -85,9 +132,10 @@ def consume_type(d, pos):
                 d = consume_whitespace(d)
                 d, x = consume_number(d)
                 hs.append(x)
+                context["x"] = x + context["x"]
             except:
                 break
-        return d, {"type": "H", "hs": hs}
+        return d, {"type": "h", "hs": hs}
     else:
         raise Exception("Unknown type {} {}".format(type, d))
 
@@ -95,64 +143,63 @@ def consume_type(d, pos):
 def parse_path(d):
     segments = []
     print("GO")
+    context = {"start_x": 0, "start_y": 0, "x": 0, "y": 0}
     while len(d) > 0:
         d = consume_whitespace(d)
-        d, segment = consume_type(d, {"x": 0, "y": 0})
-        segments.append(segment)
+        d, segment = consume_type(d, context)
+        if segment is not None:
+            segments.append(segment)
 
     return segments
 
 
 def amigaaaaa(words):
-    ret = []
-    for word in words:
-        ret.append((word & 0xff00) >> 8)
-        ret.append(word & 0xff)
-    return ret
+    # print(words)
+    return words
 
 
 def write_path(segments):
     start = {"x": 0, "y": 0}
     for segment in segments:
-        if segment["type"] == "M":
+        print(segment)
+        if segment["type"] == "m":
+            print(segment)
             start["x"] = segment["x"]
             start["y"] = segment["y"]
-            array('B', [ord("M")]).tofile(ranz)
-            array('B', amigaaaaa([segment["x"],
+            array('B', [ord("m")]).tofile(ranz)
+            array('b', amigaaaaa([segment["x"],
                                   segment["y"]])).tofile(ranz)
-        elif segment["type"] == "Q":
-            array('B', [ord("Q")]).tofile(ranz)
+        elif segment["type"] == "q":
+            array('B', [ord("q")]).tofile(ranz)
             array('B', [len(segment["qs"])]).tofile(ranz)
             for q in segment["qs"]:
-                array('B', amigaaaaa([q["cx"], q["cy"],
+                array('b', amigaaaaa([q["cx"], q["cy"],
                                       q["x"], q["y"]])).tofile(ranz)
-        elif segment["type"] == "z":
-            array('B', [ord("L")]).tofile(ranz)
-            array('B', [1]).tofile(ranz)
-            array('B', amigaaaaa([start["x"],
-                                  start["y"]])).tofile(ranz)
-        elif segment["type"] == "L":
-            array('B', [ord("L")]).tofile(ranz)
+        elif segment["type"] == "l":
+            array('B', [ord("l")]).tofile(ranz)
             array('B', [len(segment["ls"])]).tofile(ranz)
             for l in segment["ls"]:
-                array('B', amigaaaaa([l["x"], l["y"]])).tofile(ranz)
-        elif segment["type"] == "H":
-            array('B', [ord("H")]).tofile(ranz)
+                array('b', amigaaaaa([l["x"], l["y"]])).tofile(ranz)
+        elif segment["type"] == "h":
+            array('B', [ord("h")]).tofile(ranz)
             array('B', [len(segment["hs"])]).tofile(ranz)
             for x in segment["hs"]:
-                array('B', amigaaaaa([x])).tofile(ranz)
-        elif segment["type"] == "V":
-            array('B', [ord("V")]).tofile(ranz)
+                array('b', amigaaaaa([x])).tofile(ranz)
+        elif segment["type"] == "v":
+            array('B', [ord("v")]).tofile(ranz)
             array('B', [len(segment["vs"])]).tofile(ranz)
             for y in segment["vs"]:
-                array('B', amigaaaaa([y])).tofile(ranz)
+                array('b', amigaaaaa([y])).tofile(ranz)
 
 
 def remove_implicit_line_to(d):
-    return re.sub("M(\d+) (\d+) (\d+)", r'M\1 \2 L\3', d)
+    s = re.sub("M(-?\d+)([-|\s]\d+)([-|\s]\d+)", r'M \1 \2 L\3', d)
+    s = re.sub("m(-?\d+)([-|\s]\d+)([-|\s]\d+)", r'm \1 \2 l\3', s)
+    return s
 
 
 num = 0
+pattern = re.compile('(-?\d+)')
 for path in doc.findall(".//svg:path", ns):
     d = path.attrib["d"]
     d = remove_implicit_line_to(d)

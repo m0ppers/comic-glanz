@@ -141,75 +141,64 @@ void create_ranz(uint8_t *image) {
 
   uint8_t *start = (uint8_t *)&ranz_bin;
   uint8_t *pos = start;
-
+  x = 0;
+  y = 0;
   while (pos != (start + ranz_bin_len)) {
     unsigned char instruction = *pos;
     // printf("GEIL %c\n", instruction);
-    // if (pos > start + 40) {
+    // if (pos > start + 9) {
     //   return;
     // }
-    if (instruction == 'M') {
+    if (instruction == 'm') {
       pos++;
-      int16_t a = (*(int16_t *)pos >> 8);
-      int16_t b = (*(int16_t *)pos << 8);
-      int16_t c = a | b;
-      // ((*(int16_t *)pos >> 8) | (*(int16_t *)pos & 0xff << 8))
-      x = FETCH_I16(pos);
-      pos += 2;
-      y = FETCH_I16(pos);
-      pos += 2;
-
-    } else if (instruction == 'Q') {
+      x = *((int8_t *)pos++) + x;
+      y = *((int8_t *)pos++) + y;
+      // printf("M %d %d\n", x, y);
+    } else if (instruction == 'q') {
       pos++;
       uint8_t numqs = *(uint8_t *)pos;
       pos++;
       for (uint8_t i = 0; i < numqs; i++) {
-        int16_t cx = FETCH_I16(pos);
-        pos += 2;
-        int16_t cy = FETCH_I16(pos);
-        pos += 2;
-        int16_t dx = FETCH_I16(pos);
-        pos += 2;
-        int16_t dy = FETCH_I16(pos);
-        pos += 2;
+        int16_t cx = x + *((int8_t *)pos++);
+        int16_t cy = y + *((int8_t *)pos++);
+        int16_t dx = x + *((int8_t *)pos++);
+        int16_t dy = y + *((int8_t *)pos++);
         // printf("%d %d Q %d %d %d %d\n", x, y, cx, cy, dx, dy);
         // draw_line(image, (int16_t)roundf(x), (int16_t)roundf(y), dx, dy);
         draw_quadratic_bezier(image, x, y, cx, cy, dx, dy);
+        // draw_line(image, x, y, dx, dy, 32, 0);
         x = dx;
         y = dy;
       }
-    } else if (instruction == 'L') {
+    } else if (instruction == 'l') {
       pos++;
       uint8_t numls = *(uint8_t *)pos;
       pos++;
       for (uint8_t i = 0; i < numls; i++) {
-        int16_t dx = FETCH_I16(pos);
-        pos += 2;
-        int16_t dy = FETCH_I16(pos);
-        pos += 2;
-        // printf("%d %d L %d %d\n", x, y, dx, dy);
+        int16_t dx = *((int8_t *)pos++) + x;
+        int16_t dy = *((int8_t *)pos++) + y;
+        // printf("L %d %d %d %d\n", x, y, dx, dy);
         draw_line(image, x, y, dx, dy, 32, 0);
         x = dx;
         y = dy;
       }
-    } else if (instruction == 'H') {
+    } else if (instruction == 'h') {
       pos++;
       uint8_t numhs = *(uint8_t *)pos;
       pos++;
       for (uint8_t i = 0; i < numhs; i++) {
-        int16_t dx = FETCH_I16(pos);
-        pos += 2;
+        int16_t dx = *((int8_t *)pos++) + x;
         draw_line(image, x, y, dx, y, 32, 0);
+        // printf("H %d %d %d\n", x, y, dx);
         x = dx;
       }
-    } else if (instruction == 'V') {
+    } else if (instruction == 'v') {
       pos++;
       uint8_t numvs = *(uint8_t *)pos;
       pos++;
       for (uint8_t i = 0; i < numvs; i++) {
-        int16_t dy = FETCH_I16(pos);
+        int16_t dy = *((int8_t *)pos++) + y;
         // printf("V %d %d %d\n", x, y, dy);
-        pos += 2;
         draw_line(image, x, y, x, dy, 32, 0);
         y = dy;
       }

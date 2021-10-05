@@ -26,9 +26,9 @@
      units="mm"
      width="320mm"
      showguides="false"
-     inkscape:zoom="0.83509115"
-     inkscape:cx="604.72441"
-     inkscape:cy="483.77953"
+     inkscape:zoom="0.41754558"
+     inkscape:cx="461.02751"
+     inkscape:cy="268.23419"
      inkscape:window-width="1916"
      inkscape:window-height="1023"
      inkscape:window-x="0"
@@ -45,17 +45,23 @@
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.5833px;line-height:1.25;font-family:'Comic Sans MS';-inkscape-font-specification:'Comic Sans MS, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        x="159.75206"
-       y="104.04854"
+       y="78.119331"
        id="text4197"><tspan
-         sodipodi:role="line"
-         id="tspan8819"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:90.3111px;font-family:'Comic Sans MS';-inkscape-font-specification:'Comic Sans MS, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         x="159.75206"
-         y="104.04854">COMIC</tspan><tspan
          sodipodi:role="line"
          id="tspan8821"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:90.3111px;font-family:'Comic Sans MS';-inkscape-font-specification:'Comic Sans MS, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         x="159.75204"
-         y="216.93741">RANZ</tspan></text>
+         x="159.75206"
+         y="78.119331">COMIC</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.5833px;line-height:1.25;font-family:'Comic Sans MS';-inkscape-font-specification:'Comic Sans MS, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="159.94902"
+       y="155.63609"
+       id="text4197-8"><tspan
+         sodipodi:role="line"
+         id="tspan8821-5"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:90.3111px;font-family:'Comic Sans MS';-inkscape-font-specification:'Comic Sans MS, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         x="159.94902"
+         y="155.63609">GLANZ</tspan></text>
   </g>
 </svg>
