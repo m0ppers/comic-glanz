@@ -12,8 +12,8 @@ struct ExecBase *SysBase;
 struct GfxBase *GfxBase;
 struct IntuitionBase *IntuitionBase;
 
-// void __nocommandline(){}; /* Disable commandline parsing  */
-// void __initlibraries(){}; /* Disable auto-library-opening */
+void __nocommandline(){}; /* Disable commandline parsing  */
+void __initlibraries(){}; /* Disable auto-library-opening */
 
 /*
  * declare memory mapped chip areas as volatile to ensure
@@ -119,9 +119,6 @@ int main(int argc, char **argv) {
   // }
 
   create_ranz(&image[0]);
-  for (int i = 0; i < BUFFER_LEN; i++) {
-    buffer[i] = 0;
-  }
 
   int plane_size = 320 * 256 / 8;
   for (int i = 0; i < 81920; i++) {
