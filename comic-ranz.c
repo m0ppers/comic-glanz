@@ -111,15 +111,6 @@ void draw_quadratic_bezier(uint8_t *image, int16_t x0, int16_t y0, int16_t x1,
   draw_line(image, x0, y0, x2, y2); /* plot remaining part to end */
 }
 
-uint8_t pixel_at(uint8_t *image, int16_t x, int16_t y) {
-  if (x < 0 || x >= 320) {
-    return 0;
-  }
-  if (y < 0 || y >= 256) {
-    return 0;
-  }
-}
-
 // https://blackpawn.com/texts/blur/default.html
 void blur_h(uint8_t *source, uint8_t *dest) {
   // ignore edge of image so loop is easier (no content there anyway)
