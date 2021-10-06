@@ -3,7 +3,12 @@ module.exports = {
   plugins: [
     "cleanupIDs",
     // "mergeStyles",
-    "mergePaths",
+    {
+      name: "mergePaths",
+      params: {
+        force: true,
+      },
+    },
     // "minifyStyles",
     {
       name: "convertPathData",

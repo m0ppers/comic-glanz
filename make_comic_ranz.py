@@ -71,7 +71,7 @@ def consume_type(d, context):
             except:
                 break
         return d, {"type": "q", "qs": qs}
-    elif type == "z":
+    elif type == "z" or type == "Z":
         d = d[1:]
         old_x = context["x"]
         old_y = context["y"]
