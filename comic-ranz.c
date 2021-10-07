@@ -151,8 +151,8 @@ void blur(uint8_t *image) {
 }
 
 void create_ranz(uint8_t *image) {
-  int16_t x, dx = 0;
-  int16_t y, dy = 0;
+  int16_t x = 0, dx = 0;
+  int16_t y = 0, dy = 0;
 
   uint8_t *start = (uint8_t *)&ranz_bin;
   uint8_t *pos = start;
