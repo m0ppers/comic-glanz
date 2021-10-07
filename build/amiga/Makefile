@@ -1,5 +1,5 @@
 aa-glanz.adf: aa-glanz
-	xdftool aa-glanz.adf format ``aa-glanz`` + write aa-glanz  + boot install + list
+	xdftool aa-glanz.adf format ``aa-glanz`` + write aa-glanz  + boot install + makedir s + write startup-sequence s/startup-sequence + list
 
 aa-glanz: comic-glanz
 	/home/mop/projects/Shrinkler/build/native/Shrinkler comic-glanz aa-glanz

@@ -1,5 +1,6 @@
 #include "comic-ranz.h"
 
+#include <clib/dos_protos.h>
 #include <clib/exec_protos.h>
 #include <clib/graphics_protos.h>
 #include <clib/intuition_protos.h>
@@ -11,6 +12,7 @@ struct Custom custom;
 struct ExecBase *SysBase;
 struct GfxBase *GfxBase;
 struct IntuitionBase *IntuitionBase;
+struct DOSBase *DOSBase;
 
 void __nocommandline(){}; /* Disable commandline parsing  */
 void __initlibraries(){}; /* Disable auto-library-opening */
@@ -113,10 +115,17 @@ int main(int argc, char **argv) {
   if (!IntuitionBase) {
     return 1;
   }
-  // MathBase = (struct MathBase*) OpenLibrary("math.library", 0);
-  // if (!MathBase) {
-  //   return 1;
-  // }
+
+  DOSBase = (struct DOSBase *)OpenLibrary("dos.library", 0L);
+  if (!DOSBase) {
+    return 1;
+  }
+  Write(Output(), (APTR) "Comic Glanz - Akronyme Analogiker - Deadline 2021\n",
+        50);
+  Write(Output(),
+        (APTR) "3KiB - OCS/EHB - ~20s prekalk. Only Amiga makes it "
+               "possible\n",
+        60);
 
   create_ranz(&image[0]);
 
@@ -125,13 +134,14 @@ int main(int argc, char **argv) {
     uint8_t b = 1 << (7 - i % 8);
     // walk through all planes and set bit by bit in every plane
     // STUMPF IST TRUMPF
+    // mul and div is killing performance
     int plane_offset = 0;
     int bittest = 1;
     for (int p = 0; p < NUM_BITPLANES; p++) {
       if (image[i] & bittest) {
         buffer[i / 8 + plane_offset] |= b;
       }
-      bittest *= 2;
+      bittest = bittest << 1;
       plane_offset += plane_size;
     }
   }
@@ -169,6 +179,7 @@ int main(int argc, char **argv) {
   custom.dmacon = dmaconr | 0x8000;
   Permit();
 
+  CloseLibrary((struct Library *)DOSBase);
   CloseLibrary((struct Library *)IntuitionBase);
   CloseLibrary((struct Library *)GfxBase);
   return 0;
