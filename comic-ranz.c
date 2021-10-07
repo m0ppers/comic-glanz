@@ -121,7 +121,7 @@ void blur_h(uint8_t *source, uint8_t *dest) {
       for (int kx = -BLUR_RADIUS; kx <= BLUR_RADIUS; kx++) {
         total += source[index + kx];
       }
-      dest[index] = total / (2 + 1);
+      dest[index] = total / 3;
       index++;
     }
     index += 2;
@@ -138,7 +138,7 @@ void blur_v(uint8_t *source, uint8_t *dest) {
         total += source[blur_index];
         blur_index += 320;
       }
-      dest[index] = total / (2 + 1);
+      dest[index] = total / 3;
       // dest[index] = source[index];
       index++;
     }
@@ -155,72 +155,50 @@ void blur(uint8_t *image) {
 }
 
 void create_ranz(uint8_t *image) {
-  int16_t x = 0;
-  int16_t y = 0;
-
-  for (int i = 0; i < 81920; i++) {
-    image[i] = 0;
-  }
+  int16_t x, dx = 0;
+  int16_t y, dy = 0;
 
   uint8_t *start = (uint8_t *)&ranz_bin;
   uint8_t *pos = start;
   x = 0;
   y = 0;
   while (pos != (start + ranz_bin_len)) {
-    unsigned char instruction = *pos;
-    // printf("GEIL %c\n", instruction);
-    // if (pos > start + 9) {
-    //   return;
-    // }
+    unsigned char instruction = *(pos++);
     if (instruction == 'm') {
-      pos++;
       x = *((int8_t *)pos++) + x;
       y = *((int8_t *)pos++) + y;
       // printf("M %d %d\n", x, y);
     } else if (instruction == 'q') {
-      pos++;
-      uint8_t numqs = *(uint8_t *)pos;
-      pos++;
+      uint8_t numqs = *(pos++);
       for (uint8_t i = 0; i < numqs; i++) {
         int16_t cx = x + *((int8_t *)pos++);
         int16_t cy = y + *((int8_t *)pos++);
-        int16_t dx = x + *((int8_t *)pos++);
-        int16_t dy = y + *((int8_t *)pos++);
-        // printf("%d %d Q %d %d %d %d\n", x, y, cx, cy, dx, dy);
-        // draw_line(image, (int16_t)roundf(x), (int16_t)roundf(y), dx, dy);
+        dx = x + *((int8_t *)pos++);
+        dy = y + *((int8_t *)pos++);
         draw_quadratic_bezier(image, x, y, cx, cy, dx, dy);
-        // draw_line(image, x, y, dx, dy, 32, 0);
         x = dx;
         y = dy;
       }
     } else if (instruction == 'l') {
-      pos++;
-      uint8_t numls = *(uint8_t *)pos;
-      pos++;
+      uint8_t numls = *(pos++);
       for (uint8_t i = 0; i < numls; i++) {
-        int16_t dx = *((int8_t *)pos++) + x;
-        int16_t dy = *((int8_t *)pos++) + y;
-        // printf("L %d %d %d %d\n", x, y, dx, dy);
+        dx = *((int8_t *)pos++) + x;
+        dy = *((int8_t *)pos++) + y;
         draw_line(image, x, y, dx, dy);
         x = dx;
         y = dy;
       }
     } else if (instruction == 'h') {
-      pos++;
-      uint8_t numhs = *(uint8_t *)pos;
-      pos++;
+      uint8_t numhs = *(pos++);
       for (uint8_t i = 0; i < numhs; i++) {
-        int16_t dx = *((int8_t *)pos++) + x;
+        dx = *((int8_t *)pos++) + x;
         draw_line(image, x, y, dx, y);
-        // printf("H %d %d %d\n", x, y, dx);
         x = dx;
       }
     } else if (instruction == 'v') {
-      pos++;
-      uint8_t numvs = *(uint8_t *)pos;
-      pos++;
+      uint8_t numvs = *(pos++);
       for (uint8_t i = 0; i < numvs; i++) {
-        int16_t dy = *((int8_t *)pos++) + y;
+        dy = *((int8_t *)pos++) + y;
         // printf("V %d %d %d\n", x, y, dy);
         draw_line(image, x, y, x, dy);
         y = dy;
@@ -241,7 +219,6 @@ void create_ranz(uint8_t *image) {
     uint8_t draw_white = 0;
     for (x = 0; x < 320; x++) {
       if (image[index] > 0) {
-        // printf("GEILGEIL %d\n", image[index]);
         if (draw_white) {
           draw_white = 0;
         } else {
