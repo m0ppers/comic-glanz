@@ -173,33 +173,20 @@ void create_ranz(uint8_t *image) {
         x = dx;
         y = dy;
       }
-    } else if (instruction == 'l') {
-      uint8_t numls = *(pos++);
-      for (uint8_t i = 0; i < numls; i++) {
-        dx = *((int8_t *)pos++) + x;
-        dy = *((int8_t *)pos++) + y;
+    } else {
+      // l, v and h instructions
+      uint8_t num = *(pos++);
+      for (uint8_t i = 0; i < num; i++) {
+        if (instruction != 'v') {
+          dx = *((int8_t *)pos++) + x;
+        }
+        if (instruction != 'h') {
+          dy = *((int8_t *)pos++) + y;
+        }
         draw_line(image, x, y, dx, dy);
         x = dx;
         y = dy;
       }
-    } else if (instruction == 'h') {
-      uint8_t numhs = *(pos++);
-      for (uint8_t i = 0; i < numhs; i++) {
-        dx = *((int8_t *)pos++) + x;
-        draw_line(image, x, y, dx, y);
-        x = dx;
-      }
-    } else if (instruction == 'v') {
-      uint8_t numvs = *(pos++);
-      for (uint8_t i = 0; i < numvs; i++) {
-        dy = *((int8_t *)pos++) + y;
-        // printf("V %d %d %d\n", x, y, dy);
-        draw_line(image, x, y, x, dy);
-        y = dy;
-      }
-    } else {
-      // printf("Kaputt! %c %d\n", instruction, pos - start);
-      return;
     }
   }
 
