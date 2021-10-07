@@ -1,9 +1,10 @@
 {
     "files.associations": {
         "*.hcl": "terraform",
-        "comic-ranz.h": "c",
+        "comic-glanz.h": "c",
         "chrono": "c",
         "complex": "c",
-        "valarray": "c"
+        "valarray": "c",
+        "comic-glanz.h": "c"
     }
 }

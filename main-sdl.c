@@ -1,4 +1,4 @@
-#include "comic-ranz.h"
+#include "comic-glanz.h"
 
 #include "SDL.h"
 #include <stdbool.h>
@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
 
   Uint32 window_flags = 0;
   // Create an application window with the following settings:
-  window = SDL_CreateWindow("Comic Ranz",            // window title
+  window = SDL_CreateWindow("Comic Glanz",           // window title
                             SDL_WINDOWPOS_UNDEFINED, // initial x position
                             SDL_WINDOWPOS_UNDEFINED, // initial y position
                             WIDTH,                   // width, in pixels
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
     colors[i + 32].b = c | (c << 4);
   }
   SDL_SetPaletteColors(surface->format->palette, colors, 0, 64);
-  create_ranz(surface->pixels);
+  create_glanz(surface->pixels);
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
   bool running = true;
   SDL_Event event;

@@ -1,4 +1,4 @@
-#include "comic-ranz.h"
+#include "comic-glanz.h"
 
 #include <clib/dos_protos.h>
 #include <clib/exec_protos.h>
@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
                "possible\n",
         60);
 
-  create_ranz(&image[0]);
+  create_glanz(&image[0]);
 
   int plane_size = 320 * 256 / 8;
   for (int i = 0; i < 81920; i++) {

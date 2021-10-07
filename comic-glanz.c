@@ -1,6 +1,6 @@
-#include "comic-ranz.h"
+#include "comic-glanz.h"
 
-#include "ranz.h"
+#include "glanz.h"
 
 #ifndef AMIGA
 #include "stdio.h"
@@ -150,13 +150,13 @@ void blur(uint8_t *image) {
   blur_v(&temp[0], image);
 }
 
-void create_ranz(uint8_t *image) {
+void create_glanz(uint8_t *image) {
   int16_t x = 0, dx = 0;
   int16_t y = 0, dy = 0;
 
-  uint8_t *start = (uint8_t *)&ranz_bin;
+  uint8_t *start = (uint8_t *)&glanz_bin;
   uint8_t *pos = start;
-  while (pos != (start + ranz_bin_len)) {
+  while (pos != (start + glanz_bin_len)) {
     unsigned char instruction = *(pos++);
     if (instruction == 'm') {
       x = *((int8_t *)pos++) + x;

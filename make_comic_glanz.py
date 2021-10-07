@@ -5,8 +5,8 @@ import json
 from array import array
 
 ns = {'svg': 'http://www.w3.org/2000/svg'}
-doc = ET.parse("comic-ranz_path_opt.svg")
-ranz = open('ranz.bin', 'wb')
+doc = ET.parse("comic-glanz_path_opt.svg")
+glanz = open('glanz.bin', 'wb')
 
 
 def consume_whitespace(d):
@@ -166,30 +166,30 @@ def write_path(segments):
             print(segment)
             start["x"] = segment["x"]
             start["y"] = segment["y"]
-            array('B', [ord("m")]).tofile(ranz)
+            array('B', [ord("m")]).tofile(glanz)
             array('b', amigaaaaa([segment["x"],
-                                  segment["y"]])).tofile(ranz)
+                                  segment["y"]])).tofile(glanz)
         elif segment["type"] == "q":
-            array('B', [ord("q")]).tofile(ranz)
-            array('B', [len(segment["qs"])]).tofile(ranz)
+            array('B', [ord("q")]).tofile(glanz)
+            array('B', [len(segment["qs"])]).tofile(glanz)
             for q in segment["qs"]:
                 array('b', amigaaaaa([q["cx"], q["cy"],
-                                      q["x"], q["y"]])).tofile(ranz)
+                                      q["x"], q["y"]])).tofile(glanz)
         elif segment["type"] == "l":
-            array('B', [ord("l")]).tofile(ranz)
-            array('B', [len(segment["ls"])]).tofile(ranz)
+            array('B', [ord("l")]).tofile(glanz)
+            array('B', [len(segment["ls"])]).tofile(glanz)
             for l in segment["ls"]:
-                array('b', amigaaaaa([l["x"], l["y"]])).tofile(ranz)
+                array('b', amigaaaaa([l["x"], l["y"]])).tofile(glanz)
         elif segment["type"] == "h":
-            array('B', [ord("h")]).tofile(ranz)
-            array('B', [len(segment["hs"])]).tofile(ranz)
+            array('B', [ord("h")]).tofile(glanz)
+            array('B', [len(segment["hs"])]).tofile(glanz)
             for x in segment["hs"]:
-                array('b', amigaaaaa([x])).tofile(ranz)
+                array('b', amigaaaaa([x])).tofile(glanz)
         elif segment["type"] == "v":
-            array('B', [ord("v")]).tofile(ranz)
-            array('B', [len(segment["vs"])]).tofile(ranz)
+            array('B', [ord("v")]).tofile(glanz)
+            array('B', [len(segment["vs"])]).tofile(glanz)
             for y in segment["vs"]:
-                array('b', amigaaaaa([y])).tofile(ranz)
+                array('b', amigaaaaa([y])).tofile(glanz)
 
 
 def remove_implicit_line_to(d):

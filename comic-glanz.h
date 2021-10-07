@@ -2,4 +2,4 @@
 
 #include <stdint.h>
 
-void create_ranz(uint8_t *image);
+void create_glanz(uint8_t *image);
