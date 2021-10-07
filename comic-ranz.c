@@ -2,11 +2,7 @@
 
 #include "ranz.h"
 
-#ifdef AMIGA
-#define FETCH_I16(pos) *(int16_t *)pos
-#else
-#define FETCH_I16(pos)                                                         \
-  ((int16_t)((*(uint16_t *)pos >> 8) | (*(uint16_t *)pos << 8)))
+#ifndef AMIGA
 #include "stdio.h"
 #endif
 
@@ -160,8 +156,6 @@ void create_ranz(uint8_t *image) {
 
   uint8_t *start = (uint8_t *)&ranz_bin;
   uint8_t *pos = start;
-  x = 0;
-  y = 0;
   while (pos != (start + ranz_bin_len)) {
     unsigned char instruction = *(pos++);
     if (instruction == 'm') {
